@@ -1,0 +1,11 @@
+{
+  "name": "swa-local-first-demo",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "swa start http://localhost:5198 --api-location http://localhost:7088"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

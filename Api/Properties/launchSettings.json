@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Api": {
+      "commandName": "Project",
+      "commandLineArgs": "--cors * --port 7088",
+      "launchBrowser": false
+    }
+  }
+}

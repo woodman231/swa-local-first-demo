@@ -1,0 +1,64 @@
+﻿@page "/hello"
+@using System.Web
+@inject HttpClient _httpClient;
+
+<h1>Hello</h1>
+
+<PageTitle>Hello</PageTitle>
+
+<EditForm Model="@helloFormModel" OnValidSubmit="SubmitHelloForm">
+    <div class="form-group">
+        <label>Name</label>
+        <InputText @bind-Value="helloFormModel.Name" class="form-control" />
+    </div>
+    <input class="btn btn-primary my-2" type="submit" value="Submit" />
+</EditForm>
+
+<p>Response Text: @responseText</p>
+
+@code {
+    private HelloFormModel helloFormModel { get; set; } = new HelloFormModel();
+    private string responseText { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetHelloResponseAsync();
+    }    
+
+    private async Task SubmitHelloForm()
+    {
+        await GetHelloResponseAsync();
+    }
+
+    private async Task GetHelloResponseAsync()
+    {
+        if(_httpClient.BaseAddress is not null)
+        {
+            var uriBuilder = new UriBuilder(_httpClient.BaseAddress);
+            uriBuilder.Path = "/api/hello";
+
+            if(!string.IsNullOrEmpty(helloFormModel.Name) && !string.IsNullOrWhiteSpace(helloFormModel.Name))
+            {
+                var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+
+                query["name"] = helloFormModel.Name;
+
+                uriBuilder.Query = query.ToString();
+            }
+
+            var builtUri = uriBuilder.ToString();
+
+            Console.WriteLine($"builtUri: {builtUri}");
+
+            var response = await _httpClient.GetStringAsync(builtUri);
+
+            responseText = response;
+        }
+    }
+
+    private class HelloFormModel
+    {
+        public string? Name { get; set; }
+    }
+}

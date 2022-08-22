@@ -3,7 +3,9 @@ name: Azure Static Web Apps CI/CD
 on:
   push:
     branches:
-      - '**'
+      - master
+      - dev
+      - stage
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:

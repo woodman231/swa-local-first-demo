@@ -53,11 +53,11 @@ namespace Api
 
                     var cookieContainer = new CookieContainer();
 
+                    cookieContainer.Add(baseAddress, new Cookie("StaticWebAppsAuthCookie", swaCookie));
+
                     var handler = new HttpClientHandler() { CookieContainer = cookieContainer };
 
-                    var client = new HttpClient(handler) { BaseAddress = baseAddress };
-
-                    cookieContainer.Add(baseAddress, new Cookie("StaticWebAppsAuthCookie", swaCookie));
+                    var client = new HttpClient(handler) { BaseAddress = baseAddress };                    
 
                     var response = await client.GetFromJsonAsync<ClientPrincipalPayLoad>("/.auth/me");
 

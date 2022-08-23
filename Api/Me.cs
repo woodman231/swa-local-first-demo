@@ -25,7 +25,7 @@ namespace Api
         {
             var myResponse = new ClientPrincipalResponse();
 
-            var myClientPrincipal = GetClientPrincipal(req);
+            var myClientPrincipal = GetClientPrincipal(req, log);
 
             if(myClientPrincipal.UserId is not null)
             {
@@ -35,10 +35,11 @@ namespace Api
             return new OkObjectResult(myResponse);
         }
 
-        private static ClientPrincipal GetClientPrincipal(HttpRequest req)
+        private static ClientPrincipal GetClientPrincipal(HttpRequest req, ILogger log)
         {
             var principal = new ClientPrincipal();
 
+            /*
             var staticWebAppsAuthCookie = req.Cookies.Where(w => w.Key == "StaticWebAppsAuthCookie").FirstOrDefault();
 
             if(!string.IsNullOrEmpty(staticWebAppsAuthCookie.Value))
@@ -48,13 +49,27 @@ namespace Api
                 var json = Encoding.UTF8.GetString(decoded);
                 principal = JsonConvert.DeserializeObject<ClientPrincipal>(json);                
             }
+            */
+
+            var swaCookie = req.Cookies["StaticWebAppsAuthCookie"];
+
+            if(swaCookie != null)
+            {
+                log.LogInformation("SWA Cookie Found");
+                var decoded = Convert.FromBase64String(swaCookie);
+                log.LogInformation("SWA Cookie Decoded to a Byte Array");
+                var json = Encoding.UTF8.GetString(decoded);
+                log.LogInformation($"SWA Cookie JSON: {json}");
+                principal = JsonConvert.DeserializeObject<ClientPrincipal>(json);
+                log.LogInformation($"SWA Cookie Deserialized");
+            }
 
             return principal;
         }
 
         private class ClientPrincipalResponse
         {
-            public ClientPrincipal? ClientPrincipal { get; set; }
+            public ClientPrincipal ClientPrincipal { get; set; } = null;
         }
     }
 }

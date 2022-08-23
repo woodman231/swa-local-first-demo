@@ -19,14 +19,21 @@ namespace Client
         {
             var claimsIdentity = new ClaimsIdentity();
 
-            var response = await _httpClient.GetFromJsonAsync<ClientPrincipalPayLoad>("/.auth/me");
-
-            if (response is not null)
+            try
             {
-                if (response.ClientPrincipal is not null)
+                var response = await _httpClient.GetFromJsonAsync<ClientPrincipalPayLoad>("/.auth/me");
+
+                if (response is not null)
                 {
-                    claimsIdentity = response.ClientPrincipal.ToClaimsIdentity();
+                    if (response.ClientPrincipal is not null)
+                    {
+                        claimsIdentity = response.ClientPrincipal.ToClaimsIdentity();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
 
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);

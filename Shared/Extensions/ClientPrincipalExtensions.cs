@@ -16,10 +16,13 @@ namespace Shared.Extensions
 
             claimsIdentity.AddClaims(clientPrincipal.UserRoles.Select(r => new Claim(ClaimTypes.Role, r)));
 
-            foreach (var claim in clientPrincipal.Claims)
+            if(clientPrincipal.Claims is not null)
             {
-                claimsIdentity.AddClaim(new Claim(claim.Typ, claim.Val));
-            }
+                foreach (var claim in clientPrincipal.Claims)
+                {
+                    claimsIdentity.AddClaim(new Claim(claim.Typ, claim.Val));
+                }
+            }            
 
             return claimsIdentity;
         }

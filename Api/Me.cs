@@ -48,43 +48,32 @@ namespace Api
             {
                 try
                 {
+                    string endPoint = $"{req.Scheme}://{req.Host}/.auth/me";
 
-                    var baseAddress = new Uri($"{req.Scheme}://{req.Host}");
+                    HttpClient client = new HttpClient();
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, endPoint);
 
-                    var cookieContainer = new CookieContainer();
+                    request.Headers.Add("Cookie", $"StaticWebAppsAuthCookie={swaCookie}");
 
-                    cookieContainer.Add(baseAddress, new Cookie("StaticWebAppsAuthCookie", swaCookie));
+                    log.LogInformation($"Sending Http Request to {endPoint} with StaticWebAppsAuthCookie={swaCookie}");
 
-                    var handler = new HttpClientHandler() { CookieContainer = cookieContainer };
+                    var response = await client.SendAsync(request);
+                    var information = await response.Content.ReadAsStringAsync();
 
-                    var client = new HttpClient(handler) { BaseAddress = baseAddress };                    
+                    log.LogInformation($"Recieved the following response from {endPoint}: {information}");
 
-                    var response = await client.GetFromJsonAsync<ClientPrincipalPayLoad>("/.auth/me");
-
-                    if (response is not null)
+                    var jsonResult = System.Text.Json.JsonSerializer.Deserialize<ClientPrincipalPayLoad>(information, new System.Text.Json.JsonSerializerOptions
                     {
-                        if (response.ClientPrincipal is not null)
-                        {
-                            return response.ClientPrincipal;
-                        }
-                    }
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return jsonResult.ClientPrincipal;
+
                 }
                 catch(Exception ex)
                 {
                     log.LogError(ex.Message);
                 }
-
-
-
-                /*
-                log.LogInformation("SWA Cookie Found");
-                var decoded = Convert.FromBase64String(swaCookie);
-                log.LogInformation("SWA Cookie Decoded to a Byte Array");
-                var json = Encoding.UTF8.GetString(decoded);
-                log.LogInformation($"SWA Cookie JSON: {json}");
-                principal = JsonConvert.DeserializeObject<ClientPrincipal>(json);
-                log.LogInformation($"SWA Cookie Deserialized");
-                */
             }
 
             return principal;

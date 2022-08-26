@@ -1,0 +1,24 @@
+﻿@page "/me"
+
+@inject HttpClient _httpClient;
+
+
+<PageTitle>Me</PageTitle>
+
+<h1>Me</h1>
+
+<pre>@responseText</pre>
+
+@code {
+    private string? responseText { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var response = await _httpClient.GetStringAsync("/api/me");
+
+        responseText = response;
+    }
+
+}
